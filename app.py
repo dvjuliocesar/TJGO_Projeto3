@@ -33,7 +33,7 @@ def tabela():
     anos = [str(ano) for ano in anos]
 
 
-    estatisticas = analisador.calcular_estatisticas(filtro_comarca, filtro_ano)
+    estatisticas = analisador.estatisticas_a(filtro_comarca, filtro_ano)
 
     # Agrupa os dados por área de ação e calcula as estatísticas
     estatisticas_df = pd.DataFrame(estatisticas)
@@ -44,7 +44,7 @@ def tabela():
             "data_distribuicao":"Distribuídos",
             "data_baixa":"Baixados"
     })
-    print(estatisticas_df)
+    #print(estatisticas_df)
     
     # Reorganiza as colunas para exibição
     estatisticas_df = estatisticas_df[
@@ -61,6 +61,56 @@ def tabela():
 
     return render_template('base.html', 
                            tabela_html=tabela_html, comarcas=comarcas, anos=anos)
+
+@app.route('/classe')
+def tabela_classe():
+
+    # Pega o parâmetro de filtro da URL
+    filtro_comarca = request.args.get('comarca', 'GOIANIRA')
+    filtro_ano = request.args.get('ano', '2020')
+
+    # Verifica se o filtro de ano está vazio ou é inválido
+    if filtro_ano == '' or not filtro_ano.isdigit():
+        filtro_ano = '2020'  # Se vazio ou inválido, força o valor padrão '2020'
+
+    # Converte filtro_ano para inteiro
+    filtro_ano = int(filtro_ano)
+
+    session['args']=[filtro_comarca,filtro_ano]
+
+    comarcas = analisador.obter_comarcas_disponiveis()
+    anos = analisador.obter_anos_disponiveis()
+    anos = [str(ano) for ano in anos]
+
+
+    estatisticas = analisador.estatisticas_c(filtro_comarca, filtro_ano)
+
+    # Agrupa os dados por área de ação e calcula as estatísticas
+    estatisticas_df = pd.DataFrame(estatisticas)
+    estatisticas_df = estatisticas_df.rename(
+        columns={
+            "nome_area_acao":"Área de Ação",
+            "natureza":"Classe",
+            "data_distribuicao":"Distribuídos",
+            "data_baixa":"Baixados"
+    })
+    
+    # Reorganiza as colunas para exibição
+    estatisticas_df = estatisticas_df[
+        ["Área de Ação",
+         "Classe",
+         "Distribuídos", 
+         "Baixados",
+         "Pendentes", 
+         "Taxa de Congestionamento (%)"
+    ]]
+    
+    # Converte o DataFrame filtrado e com as estatísticas em HTML para exibição no dashboard
+    tabela_html = estatisticas_df.to_html(classes='table table-bordered')
+
+    return render_template('pagina-classe.html', 
+                           tabela_html=tabela_html, comarcas=comarcas, anos=anos)
+
 
 @app.route('/download')
 def download():
