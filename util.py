@@ -20,58 +20,27 @@ class ProcessosAnalisador:
 
     # Retorna as comarcas disponíveis
     def obter_comarcas_disponiveis(self):
-        
         return sorted(self.df['comarca'].unique())
         
     # Retorna os anos disponíveis na coluna de data de distribuição
     def obter_anos_disponiveis(self):
-        
         return sorted(self.df['data_distribuicao'].dt.year.unique())
         
     # Calcula as estatísticas por área de ação para o ano selecionado
-    def calcular_estatisticas(self, comarca, ano_selecionado):
+    def calcular_estatisticas(self, comarca, ano):
     
-        # Filtrar pela comarca
-        df_comarca = self.df[self.df['comarca'] == comarca]
-            
-        # Filtrar processos distribuídos no ano selecionado
-        df_ano = df_comarca[df_comarca['data_distribuicao'].dt.year == ano_selecionado]
-            
-        # Agrupar por nome_area_acao
-        estatisticas = df_ano.groupby(['nome_area_acao', 'nome_assunto']).agg(
-            Distribuídos=('data_distribuicao', 'count') # Quantidade de datas distribuídas
+        # Filtros iniciais
+        filtro_comarca = self.df['comarca'] == comarca
+        filtro_ano = self.df['data_distribuicao'].dt.year == ano
+        df_filtrado = self.df[filtro_comarca & filtro_ano].copy()
+        
+        # Cálculo das métricas
+        estatisticas = df_filtrado.groupby(['nome_area_acao', 'nome_assunto']).agg(
+            Distribuídos=('data_distribuicao', 'count'),
+            Baixados=('data_baixa', lambda x: x.notna().sum()),
+            Pendentes=('data_baixa', lambda x: x.isna().sum())
         ).reset_index()
-            
-        # Calcular baixados no ano
-        baixados_no_ano = df_comarca[
-            (df_comarca['data_baixa'].dt.year == ano_selecionado) & 
-            (df_comarca['data_baixa'].notnull())
-        ]
-            
-        # Agrupar baixados da mesma forma que os distribuídos
-        baixados_por_area = baixados_no_ano.groupby(
-            ['nome_area_acao', 'nome_assunto']
-            ).size()
-            
-        # Mesclar corretamente com estatisticas
-
-        estatisticas = estatisticas.merge(
-            baixados_por_area.rename('Baixados'), 
-            on=['nome_area_acao', 'nome_assunto'], 
-            how='left'
-        ).fillna(0).astype({'Baixados': 'int'})
-            
-        # Calcular pendentes
-        pendentes_por_area = df_ano[df_ano['data_baixa'].isnull()].groupby(
-            ['nome_area_acao', 'nome_assunto']
-        ).size()
-            
-        estatisticas = estatisticas.merge(
-            pendentes_por_area.rename('Pendentes'), 
-            on=['nome_area_acao','nome_assunto'], 
-            how='left'
-        ).fillna(0).astype({'Pendentes': 'int'})
-        print (pendentes_por_area)
+        
         # Calcular taxa de congestionamento no ano
         estatisticas['Taxa de Congestionamento (%)'] = (
             (estatisticas['Pendentes'] / (estatisticas['Pendentes'] + estatisticas['Baixados'])) * 100
