@@ -109,3 +109,33 @@ class ProcessosAnalisador:
         estatisticas_c = pd.concat([estatisticas_c, pd.DataFrame([totais])], ignore_index=True)
                     
         return estatisticas_c
+
+    #Gráfico Taxa de Congestionamento por Assunto 
+    def grafico_assunto_ano(self, ano):
+        # Filtros iniciais
+        filtro_ano = self.df['data_distribuicao'].dt.year == ano
+        df_filtrado = self.df[filtro_ano].copy()
+        
+        # Cálculo das métricas por área de ação e assunto
+        estatisticas_a = df_filtrado.groupby(['nome_area_acao', 'nome_assunto']).agg(
+            Distribuídos=('data_distribuicao', 'count'),
+            Baixados=('data_baixa', lambda x: x.notna().sum()),
+            Pendentes=('data_baixa', lambda x: x.isna().sum())
+        ).reset_index()
+        
+        # Calcular taxa de congestionamento no ano
+        estatisticas_a['Taxa de Congestionamento (%)'] = (
+            (estatisticas_a['Pendentes'] / (estatisticas_a['Pendentes'] + estatisticas_a['Baixados'])) * 100
+        ).round(2)
+
+        # Criar gráfico de barras com Plotly Express
+        fig = px.bar(estatisticas_a, 
+                     x='nome_assunto', 
+                     y='Taxa de Congestionamento (%)', 
+                     color='nome_assunto',
+                     title=f'Gráfico de Taxa de Congestionamento (%) por Assunto - Ano {ano}',
+                     labels={'nome_assunto': 'Assunto', 'Taxa de Congestionamento (%)': 'Taxa de Congestionamento (%)'},
+                     orientation='h'
+                )
+        
+        return fig
