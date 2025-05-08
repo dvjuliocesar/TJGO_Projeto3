@@ -110,7 +110,7 @@ class ProcessosAnalisador:
                     
         return estatisticas_c
 
-    #Gráfico Taxa de Congestionamento por Assunto 
+    # Gráfico Taxa de Congestionamento por Assunto 
     def grafico_assunto_ano(self, ano):
         # Filtros iniciais
         filtro_ano = self.df['data_distribuicao'].dt.year == ano
