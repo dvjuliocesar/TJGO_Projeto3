@@ -191,20 +191,32 @@
         </h1>
   
         <form method="get" action="/grafico-classe">
-            <div class='form-group' style="margin: 0 auto;">
-                <label for='ano'>Ano:</label>
-                <select id='ano' name='ano'>
-                    <option value="">Selecione um ano</option>
+          <div class='form-group' style="margin: 0 auto;">
+              
+              <label for='comarca'>Comarca:</label>
+              <select id='comarca' name='comarca'>
+                  <option value="">Selecione uma comarca</option>
+                  <!-- Abaixo serão listadas as comarcas únicas para selecionar -->
+                  {% for comarca in comarcas %}
+                      <option value="{{ comarca }}" {% if comarca == request.args.get('comarca', 'GOIANIRA') %}selected{% endif %}>
+                          {{ comarca }}
+                      </option>
+                  {% endfor %}
+              </select>
+
+              <label for='ano'>Ano:</label>
+              <select id='ano' name='ano'>
+                  <option value="">Selecione um ano</option>
                     <!-- Abaixo serão listados os anos únicos para selecionar -->
-                    {% for ano in anos %}
-                        <option value="{{ ano }}" {% if ano == request.args.get('ano', '2020') %}selected{% endif %}>
-                            {{ ano }}
-                        </option>
-                    {% endfor %}
-                </select>
-                <button type="submit">Filtrar</button>
+                  {% for ano in anos %}
+                      <option value="{{ ano }}" {% if ano == request.args.get('ano', '2020') %}selected{% endif %}>
+                          {{ ano }}
+                      </option>
+                  {% endfor %}
+              </select>
+              <button type="submit">Filtrar</button>
+            
             </div>
-  
         </form>
 
 

@@ -142,20 +142,22 @@ def grafico_assunto():
 @app.route('/grafico-classe')
 def grafico_classe():
     # Pega o parâmetro de filtro da URL
+    filtro_comarca = request.args.get('comarca', 'GOIANIRA')
     filtro_ano = request.args.get('ano', '2020')
 
     # Verifica se o filtro de ano está vazio ou é inválido
     if filtro_ano == '' or not filtro_ano.isdigit():
-        filtro_ano = '2020'
-    
-    # Converte filtro_ano para inteiro
+        filtro_ano = '2020'  # Se vazio ou inválido, força o valor padrão '2020'
     filtro_ano = int(filtro_ano)
+    
+    session['args']=[filtro_comarca, filtro_ano]
 
+    comarcas = analisador.obter_comarcas_disponiveis()
     anos = analisador.obter_anos_disponiveis()
     anos = [str(ano) for ano in anos]
-
+    
     # Gráfico 
-    fig = analisador.grafico_classe_ano(filtro_ano)
+    fig = analisador.grafico_classe_ano(comarca=filtro_comarca, ano=filtro_ano)
     fig.update_layout(
         title= None,
         xaxis_title="Classe",
@@ -165,7 +167,8 @@ def grafico_classe():
     figura_html = fig.to_html(full_html=False, include_plotlyjs='cdn')
 
     return render_template('grafico-classe.html',  
-                            figura_html=figura_html, anos=anos)
+                            figura_html=figura_html, comarcas=comarcas,anos=anos,
+                            comarca_selecionada=filtro_comarca, ano_selecionado=filtro_ano)
 
 
 @app.route('/download')

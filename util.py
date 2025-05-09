@@ -141,10 +141,11 @@ class ProcessosAnalisador:
         return fig
     
     # Gráfico Taxa de Congestionamento por Classe
-    def grafico_classe_ano(self, ano):
+    def grafico_classe_ano(self, comarca, ano):
         # Filtros iniciais
+        filtro_comarca = self.df['comarca'] == comarca
         filtro_ano = self.df['data_distribuicao'].dt.year == ano
-        df_filtrado = self.df[filtro_ano].copy()
+        df_filtrado = self.df[filtro_comarca & filtro_ano].copy()
         
         # Cálculo das métricas por área de ação e assunto
         estatisticas_c = df_filtrado.groupby(['nome_area_acao', 'natureza']).agg(
@@ -158,16 +159,39 @@ class ProcessosAnalisador:
             (estatisticas_c['Pendentes'] / (estatisticas_c['Pendentes'] + estatisticas_c['Baixados'])) * 100
         ).round(2)
 
-        # Criar gráfico de barras com Plotly Express
-        fig = px.bar(estatisticas_c, 
-                     x='natureza', 
-                     y='Taxa de Congestionamento (%)', 
-                     color='natureza',
-                     title=f'Gráfico de Taxa de Congestionamento (%) por Classe - Ano {ano}',
-                     labels={'natureza': 'Classe', 'Taxa de Congestionamento (%)': 'Taxa de Congestionamento (%)'},
-                     orientation='h'
-                    )   
-        
+       # Criar o gráfico de barras verticais
+        fig = px.bar(
+            estatisticas_c, 
+            x='natureza',                      # Classes no eixo X
+            y='Taxa de Congestionamento (%)',  # Taxa no eixo Y
+            color='natureza',                  # Cores por classe
+            title=f'Taxa de Congestionamento por Classe - Ano {ano}',
+            labels={
+                'natureza': 'Classe', 
+                'Taxa de Congestionamento (%)': 'Taxa de Congestionamento (%)'
+            },
+            text='Taxa de Congestionamento (%)',  # Mostra valores nas barras
+            height=600                           # Altura do gráfico
+        )
+
+        # Personalização avançada
+        fig.update_traces(
+            texttemplate='%{text:.1f}%',        # Formatação com 1 decimal
+            textposition='outside',             # Texto acima das barras
+            marker_line_color='rgb(8,48,107)',  # Cor da borda
+            marker_line_width=1.5               # Espessura da borda
+        )
+
+        fig.update_layout(
+            xaxis = dict(
+                showticklabels=False         # Remove rótulos do eixo X
+            ),                   
+            yaxis_range=[0, 100],               # Fixa escala de 0-100%
+            uniformtext_minsize=8,              # Tamanho mínimo do texto
+            hoverlabel=dict(
+                bgcolor='white',                # Fundo branco no hover
+                font_size=12                    # Tamanho da fonte
+            ),
+            showlegend=False                    # Remove legenda redundante
+        )
         return fig
-    
-    
