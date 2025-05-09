@@ -139,6 +139,34 @@ def grafico_assunto():
     return render_template('grafico-assunto.html',  
                             figura_html=figura_html, anos=anos)
 
+@app.route('/grafico-classe')
+def grafico_classe():
+    # Pega o parâmetro de filtro da URL
+    filtro_ano = request.args.get('ano', '2020')
+
+    # Verifica se o filtro de ano está vazio ou é inválido
+    if filtro_ano == '' or not filtro_ano.isdigit():
+        filtro_ano = '2020'
+    
+    # Converte filtro_ano para inteiro
+    filtro_ano = int(filtro_ano)
+
+    anos = analisador.obter_anos_disponiveis()
+    anos = [str(ano) for ano in anos]
+
+    # Gráfico 
+    fig = analisador.grafico_classe_ano(filtro_ano)
+    fig.update_layout(
+        title= None,
+        xaxis_title="Classe",
+        yaxis_title="Taxa de Congestionamento (%)",
+        legend_title="Classe"
+    )
+    figura_html = fig.to_html(full_html=False, include_plotlyjs='cdn')
+
+    return render_template('grafico-classe.html',  
+                            figura_html=figura_html, anos=anos)
+
 
 @app.route('/download')
 def download():

@@ -187,10 +187,10 @@
   <article class="text-center">
     <div class="text-center" style="margin-left: 3cm;">
         <h1 class="text-center" style="align-items: center; padding-bottom: 1cm;">
-          Análise de Processos por Assunto - TJGO
+          Análise de Processos por Classe - TJGO
         </h1>
   
-        <form method="get" action="/grafico-assunto">
+        <form method="get" action="/grafico-classe">
             <div class='form-group' style="margin: 0 auto;">
                 <label for='ano'>Ano:</label>
                 <select id='ano' name='ano'>
@@ -208,7 +208,7 @@
         </form>
 
 
-        <h3 style="padding: 1cm; padding-left: 0cm;">Assunto X Taxa de Congestionamento (%) - {{ request.args.get('ano', '2020') }}</h3>
+        <h3 style="padding: 1cm; padding-left: 0cm;">Classe X Taxa de Congestionamento (%) - {{ request.args.get('ano', '2020') }}</h3>
 
 
     </div>

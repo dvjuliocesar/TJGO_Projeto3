@@ -136,6 +136,38 @@ class ProcessosAnalisador:
                      title=f'Gráfico de Taxa de Congestionamento (%) por Assunto - Ano {ano}',
                      labels={'nome_assunto': 'Assunto', 'Taxa de Congestionamento (%)': 'Taxa de Congestionamento (%)'},
                      orientation='h'
-                )
+                    )   
         
         return fig
+    
+    # Gráfico Taxa de Congestionamento por Classe
+    def grafico_classe_ano(self, ano):
+        # Filtros iniciais
+        filtro_ano = self.df['data_distribuicao'].dt.year == ano
+        df_filtrado = self.df[filtro_ano].copy()
+        
+        # Cálculo das métricas por área de ação e assunto
+        estatisticas_c = df_filtrado.groupby(['nome_area_acao', 'natureza']).agg(
+            Distribuídos=('data_distribuicao', 'count'),
+            Baixados=('data_baixa', lambda x: x.notna().sum()),
+            Pendentes=('data_baixa', lambda x: x.isna().sum())
+        ).reset_index()
+        
+        # Calcular taxa de congestionamento no ano
+        estatisticas_c['Taxa de Congestionamento (%)'] = (
+            (estatisticas_c['Pendentes'] / (estatisticas_c['Pendentes'] + estatisticas_c['Baixados'])) * 100
+        ).round(2)
+
+        # Criar gráfico de barras com Plotly Express
+        fig = px.bar(estatisticas_c, 
+                     x='natureza', 
+                     y='Taxa de Congestionamento (%)', 
+                     color='natureza',
+                     title=f'Gráfico de Taxa de Congestionamento (%) por Classe - Ano {ano}',
+                     labels={'natureza': 'Classe', 'Taxa de Congestionamento (%)': 'Taxa de Congestionamento (%)'},
+                     orientation='h'
+                    )   
+        
+        return fig
+    
+    
