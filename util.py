@@ -110,34 +110,60 @@ class ProcessosAnalisador:
                     
         return estatisticas_c
 
-    # Gráfico Taxa de Congestionamento por Assunto 
-    def grafico_assunto_ano(self, ano):
+    # Gráfico Taxa de Congestionamento por Assunto
+    def grafico_assunto_ano(self, comarca, ano):
         # Filtros iniciais
+        filtro_comarca = self.df['comarca'] == comarca
         filtro_ano = self.df['data_distribuicao'].dt.year == ano
-        df_filtrado = self.df[filtro_ano].copy()
+        df_filtrado = self.df[filtro_comarca & filtro_ano].copy()
         
         # Cálculo das métricas por área de ação e assunto
-        estatisticas_a = df_filtrado.groupby(['nome_area_acao', 'nome_assunto']).agg(
+        estatisticas_c = df_filtrado.groupby(['nome_area_acao', 'nome_assunto']).agg(
             Distribuídos=('data_distribuicao', 'count'),
             Baixados=('data_baixa', lambda x: x.notna().sum()),
             Pendentes=('data_baixa', lambda x: x.isna().sum())
         ).reset_index()
         
         # Calcular taxa de congestionamento no ano
-        estatisticas_a['Taxa de Congestionamento (%)'] = (
-            (estatisticas_a['Pendentes'] / (estatisticas_a['Pendentes'] + estatisticas_a['Baixados'])) * 100
+        estatisticas_c['Taxa de Congestionamento (%)'] = (
+            (estatisticas_c['Pendentes'] / (estatisticas_c['Pendentes'] + estatisticas_c['Baixados'])) * 100
         ).round(2)
 
-        # Criar gráfico de barras com Plotly Express
-        fig = px.bar(estatisticas_a, 
-                     x='nome_assunto', 
-                     y='Taxa de Congestionamento (%)', 
-                     color='nome_assunto',
-                     title=f'Gráfico de Taxa de Congestionamento (%) por Assunto - Ano {ano}',
-                     labels={'nome_assunto': 'Assunto', 'Taxa de Congestionamento (%)': 'Taxa de Congestionamento (%)'},
-                     orientation='h'
-                    )   
-        
+       # Criar o gráfico de barras verticais
+        fig = px.bar(
+            estatisticas_c, 
+            x='nome_assunto',                      # Classes no eixo X
+            y='Taxa de Congestionamento (%)',      # Taxa no eixo Y
+            color='nome_assunto',                  # Cores por classe
+            title=f'Taxa de Congestionamento por Assunto - Ano {ano}',
+            labels={
+                'nome_assunto': 'Assunto', 
+                'Taxa de Congestionamento (%)': 'Taxa de Congestionamento (%)'
+            },
+            text='Taxa de Congestionamento (%)',  # Mostra valores nas barras
+            height=600                           # Altura do gráfico
+        )
+
+        # Personalização avançada
+        fig.update_traces(
+            texttemplate='%{text:.1f}%',        # Formatação com 1 decimal
+            textposition='outside',             # Texto acima das barras
+            marker_line_color='rgb(8,48,107)',  # Cor da borda
+            marker_line_width=1.5               # Espessura da borda
+        )
+
+        fig.update_layout(
+            xaxis = dict(
+                showticklabels=False         # Remove rótulos do eixo X
+            ),                   
+            yaxis_range=[0, 100],               # Fixa escala de 0-100%
+            uniformtext_minsize=8,              # Tamanho mínimo do texto
+            hoverlabel=dict(
+                bgcolor='white',                # Fundo branco no hover
+                font_size=12                    # Tamanho da fonte
+            ),
+            showlegend=False                    # Remove legenda redundante
+        )
         return fig
     
     # Gráfico Taxa de Congestionamento por Classe
