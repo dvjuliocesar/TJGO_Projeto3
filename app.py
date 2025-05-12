@@ -39,7 +39,6 @@ def tabela():
     estatisticas_df = pd.DataFrame(estatisticas)
     estatisticas_df = estatisticas_df.rename(
         columns={
-            "nome_area_acao":"Área de Ação",
             "nome_assunto":"Assunto",
             "data_distribuicao":"Distribuídos",
             "data_baixa":"Baixados"
@@ -48,8 +47,7 @@ def tabela():
     
     # Reorganiza as colunas para exibição
     estatisticas_df = estatisticas_df[
-        ["Área de Ação",
-         "Assunto",
+        ["Assunto",
          "Distribuídos", 
          "Baixados",
          "Pendentes", 
@@ -89,7 +87,6 @@ def tabela_classe():
     estatisticas_df = pd.DataFrame(estatisticas)
     estatisticas_df = estatisticas_df.rename(
         columns={
-            "nome_area_acao":"Área de Ação",
             "natureza":"Classe",
             "data_distribuicao":"Distribuídos",
             "data_baixa":"Baixados"
@@ -97,8 +94,7 @@ def tabela_classe():
     
     # Reorganiza as colunas para exibição
     estatisticas_df = estatisticas_df[
-        ["Área de Ação",
-         "Classe",
+        ["Classe",
          "Distribuídos", 
          "Baixados",
          "Pendentes", 

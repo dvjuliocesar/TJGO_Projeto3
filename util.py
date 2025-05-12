@@ -35,7 +35,7 @@ class ProcessosAnalisador:
         df_filtrado = self.df[filtro_comarca & filtro_ano].copy()
         
         # Cálculo das métricas por área de ação e assunto
-        estatisticas_a = df_filtrado.groupby(['nome_area_acao', 'nome_assunto']).agg(
+        estatisticas_a = df_filtrado.groupby('nome_assunto').agg(
             Distribuídos=('data_distribuicao', 'count'),
             Baixados=('data_baixa', lambda x: x.notna().sum()),
             Pendentes=('data_baixa', lambda x: x.isna().sum())
@@ -48,8 +48,7 @@ class ProcessosAnalisador:
 
         # Adicionar linha de totais
         totais = {
-            'nome_area_acao': 'TOTAL',
-            'nome_assunto':'',
+            'nome_assunto':'TOTAL',
             'Distribuídos': estatisticas_a['Distribuídos'].sum(),
             'Baixados': estatisticas_a['Baixados'].sum(),
             'Pendentes': estatisticas_a['Pendentes'].sum(),
@@ -77,7 +76,7 @@ class ProcessosAnalisador:
         df_filtrado = self.df[filtro_comarca & filtro_ano].copy()
         
         # Cálculo das métricas por área de ação e assunto
-        estatisticas_c = df_filtrado.groupby(['nome_area_acao', 'natureza']).agg(
+        estatisticas_c = df_filtrado.groupby('natureza').agg(
             Distribuídos=('data_distribuicao', 'count'),
             Baixados=('data_baixa', lambda x: x.notna().sum()),
             Pendentes=('data_baixa', lambda x: x.isna().sum())
@@ -90,8 +89,7 @@ class ProcessosAnalisador:
 
         # Adicionar linha de totais
         totais = {
-            'nome_area_acao': 'TOTAL',
-            'natureza':'',
+            'natureza':'TOTAL',
             'Distribuídos': estatisticas_c['Distribuídos'].sum(),
             'Baixados': estatisticas_c['Baixados'].sum(),
             'Pendentes': estatisticas_c['Pendentes'].sum(),
@@ -118,7 +116,7 @@ class ProcessosAnalisador:
         df_filtrado = self.df[filtro_comarca & filtro_ano].copy()
         
         # Cálculo das métricas por área de ação e assunto
-        estatisticas_c = df_filtrado.groupby(['nome_area_acao', 'nome_assunto']).agg(
+        estatisticas_c = df_filtrado.groupby('nome_assunto').agg(
             Distribuídos=('data_distribuicao', 'count'),
             Baixados=('data_baixa', lambda x: x.notna().sum()),
             Pendentes=('data_baixa', lambda x: x.isna().sum())
@@ -174,7 +172,7 @@ class ProcessosAnalisador:
         df_filtrado = self.df[filtro_comarca & filtro_ano].copy()
         
         # Cálculo das métricas por área de ação e assunto
-        estatisticas_c = df_filtrado.groupby(['nome_area_acao', 'natureza']).agg(
+        estatisticas_c = df_filtrado.groupby('natureza').agg(
             Distribuídos=('data_distribuicao', 'count'),
             Baixados=('data_baixa', lambda x: x.notna().sum()),
             Pendentes=('data_baixa', lambda x: x.isna().sum())
