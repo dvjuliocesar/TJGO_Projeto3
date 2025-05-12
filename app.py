@@ -168,32 +168,5 @@ def grafico_classe():
                             figura_html=figura_html, comarcas=comarcas,anos=anos,
                             comarca_selecionada=filtro_comarca, ano_selecionado=filtro_ano)
 
-
-@app.route('/download')
-def download():
-
-    filtro_comarca, filtro_ano = session.get('args', ['GOIÁS', '2020'])
-
-    estatisticas = analisador.calcular_estatisticas(filtro_comarca, filtro_ano)
-
-    # Agrupa os dados por área de ação e calcula as estatísticas
-    estatisticas_df = pd.DataFrame(estatisticas)
-    estatisticas_df = estatisticas_df.rename(columns={
-        "nome_area_acao":"Área de Ação", 
-        "serventia":"Serventia"
-    })
-    
-    # Converte o DataFrame para CSV em memória
-    output = io.StringIO()
-    estatisticas_df.to_csv(output, index=False)
-    output.seek(0)
-    
-    # Cria uma resposta HTTP para download
-    return Response(
-        output,
-        mimetype="text/csv",
-        headers={"Content-Disposition": f"attachment;filename=tabela_estatistica_{filtro_comarca}_{filtro_ano}.csv"}
-    )
-
 if __name__ == '__main__':
     app.run(debug=True)
