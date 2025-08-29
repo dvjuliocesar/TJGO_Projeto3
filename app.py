@@ -1,7 +1,7 @@
 from flask import Flask, request, render_template, Response, session
 from util import ProcessosAnalisador  # Certifique-se de que a classe está no arquivo correto
 import pandas as pd
-import io
+
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
 
